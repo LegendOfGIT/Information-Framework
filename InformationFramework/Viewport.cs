@@ -31,7 +31,7 @@ namespace InformationFramework
             this.Size = new Size(screenbounds.Width, screenbounds.Height);
             Scene = new Scene(this);
 
-            Engine = new SpreadEngine(Scene);
+            Engine = new SpiralEngine(Scene);
             Engine.Initialize();
         }
 
@@ -53,6 +53,22 @@ namespace InformationFramework
             else if (e.Button == System.Windows.Forms.MouseButtons.Right)
             {
                 Engine.NavigatePrevious(e);
+            }
+        }
+        private void Viewport_MouseWheel(object sender, MouseEventArgs e)
+        {
+            if (e.Delta > 0) {
+                Engine.NavigateUp(e);
+            }
+            else {
+                Engine.NavigateDown(e);
+            }
+        }
+
+        private void Viewport_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape) {
+                this.Dispose();
             }
         }
     }

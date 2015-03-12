@@ -43,10 +43,13 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 262);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "Viewport";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Load += new System.EventHandler(this.Viewport_Load);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.Viewport_KeyUp);
             this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Viewport_MouseUp);
+            this.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.Viewport_MouseWheel);
             this.ResumeLayout(false);
 
         }

@@ -8,6 +8,20 @@ using System.Drawing;
 
 namespace InformationFramework.Presentation.Modifications
 {
+    public enum Startposition
+    {
+        Custom,
+        Center,
+        West,
+        Northwest,
+        North,
+        Northeast,
+        East,
+        Southeast,
+        South,
+        Southwest
+    }
+
     public static class PositionFactory
     {
         public static PointF? Modify(PointF? response, PointF modification)

@@ -103,7 +103,7 @@ namespace InformationFramework.Presentation.Engines
             {
                 Infotextitem = Infotextitem ?? new InformationItem { };
                 var type = info.Properties.FirstOrDefault(prop => prop.ID == InformationProperty.Type).Values.FirstOrDefault();
-                var textpresentation = new TextObject(PresentationObject.Startposition.Northwest, 20)
+                var textpresentation = new TextObject(Startposition.Northwest, 20)
                 {
                     Text = string.Format(
                         "{0}: {1}",
@@ -148,7 +148,7 @@ namespace InformationFramework.Presentation.Engines
         }
         public void PopulateInformation()
         {
-            var centeritem = new CubeObject(PresentationObject.Startposition.Center, 10f)
+            var centeritem = new CubeObject(Startposition.Center, 10f)
             {
                 Color = Color.LightGray.ToFloatColor()
             };
@@ -158,7 +158,7 @@ namespace InformationFramework.Presentation.Engines
                 var item = items.ToArray()[i];
 
                 var type = item.Properties.FirstOrDefault(prop => prop.ID == InformationProperty.Type).Values.FirstOrDefault();
-                var presentationobject = new CircleObject(PresentationObject.Startposition.Center, 25f)
+                var presentationobject = new CircleObject(Startposition.Center, 25f)
                 {
                     Color = (type == FilesystemProvider.Directory ? Color.Red : Color.Orange).ToFloatColor(),
                     Angle = 360 - ((360 * i) / items.Count()),

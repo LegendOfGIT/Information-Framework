@@ -12,7 +12,7 @@ using InformationFramework.Presentation.Objects;
 
 namespace InformationFramework.Presentation.Engines
 {
-    public class ChannelEngine : Engine
+    public class SpiralEngine : Engine
     {
         private Scene Scene = default(Scene);
         private InformationItem CurrentItem = default(InformationItem);
@@ -26,8 +26,8 @@ namespace InformationFramework.Presentation.Engines
             new FilesystemProvider{}
         };
 
-        public ChannelEngine() { }
-        public ChannelEngine(Scene Scene)
+        public SpiralEngine() { }
+        public SpiralEngine(Scene Scene)
         {
             this.Scene = Scene;
         }
@@ -51,31 +51,40 @@ namespace InformationFramework.Presentation.Engines
                 var item = items.ToArray()[i];
 
                 var type = item.Properties.FirstOrDefault(prop => prop.ID == InformationProperty.Type).Values.FirstOrDefault();
-                var presentationobject = new CubeObject(PresentationObject.Startposition.Center, 80f)
+                var presentationobject = new CircleObject(Startposition.Center, 30f)
                 {
+                    Color = (type == FilesystemProvider.Directory ? Color.Red : Color.Orange).ToFloatColor(),
                     Enabled = false
                 };
-                presentationobject.Position = PositionFactory.Modify(presentationobject.Position, new PointF(0, 50f));
 
+                var modificationangle = AngleFactory.Create(Startposition.West);
                 var modifications = new List<Modification>();
-                //  Einblenden
-                modifications.Add(new ModificationColor
-                {
+                var modification = (Modification)new ModificationAngle {
                     Active = true,
-                    TargetColor = (type == FilesystemProvider.Directory ? Color.Red : Color.Orange).ToFloatColor(),
-                    ChangingVector = 2.98f,
-                    Modifications = new Modification[] { 
-                        new ModificationAngle{ ChangingVector = (i % 2 == 0) ? 90 : 270, TargetVector = (i % 2 == 0) ? 90 : 270 },
-                        new ModificationVelocity { 
-                            TargetVector = i * 2, ChangingVector = i * 2,
-                            Modifications = new Modification[]{
-                                new ModificationVelocity{ TargetVector = 0f, ChangingVector = -0.3f }
-                            }
-                        }
-                    }
-                });
+                    ChangingVector = modificationangle,
+                    TargetVector = modificationangle
+                };
+                for (int x = 0; x <= i; x++) {
+                    AngleFactory.Add(ref modificationangle, 12.5f);
 
-                presentationobject.Modifications = modifications;
+                    if (modification != null) {
+                        modification.Modifications = new Modification[]{
+                            new ModificationAngle{ TargetVector = modificationangle, ChangingVector = 0.5f },
+                            new ModificationVelocity{ TargetVector = x * 0.4f, ChangingVector = 0.3f },
+                            new ModificationVelocity{ TargetVector = 0f, ChangingVector = 20.0f }
+                        };
+
+                        var nextmodification = modification.Modifications.LastOrDefault(mod => mod is ModificationVelocity);
+                        nextmodification.Parent = modification;
+                        modification = nextmodification;
+                    }
+                }
+
+                while (modification.Parent != null) {
+                    modification = modification.Parent;
+                }
+
+                presentationobject.Modifications = new[]{ modification };
 
                 item.PresentationObject = presentationobject;
             }
@@ -162,7 +171,7 @@ namespace InformationFramework.Presentation.Engines
             {
                 Infotextitem = Infotextitem ?? new InformationItem { };
                 var type = info.Properties.FirstOrDefault(prop => prop.ID == InformationProperty.Type).Values.FirstOrDefault();
-                var textpresentation = new TextObject(PresentationObject.Startposition.Northwest, 20)
+                var textpresentation = new TextObject(Startposition.Northwest, 20)
                 {
                     Text = string.Format(
                         "{0}: {1}",

@@ -13,6 +13,29 @@ namespace InformationFramework.Presentation.Modifications
     }   
     public static class AngleFactory
     {
+        public static float Create(Startposition position)
+        {
+            return
+                position == Startposition.East ? 90 :
+                position == Startposition.North ? 0 :
+                position == Startposition.Northeast ? 45 :
+                position == Startposition.Northwest ? 315 :
+                position == Startposition.South ? 180 :
+                position == Startposition.Southeast ? 135 :
+                position == Startposition.Southwest ? 225 :
+                position == Startposition.West ? 270 :
+                0
+            ;
+        }
+        public static void Add(ref float angle, float modification) {
+            var response = angle + modification;
+            if (response < 0) {
+                while (response < 0) { response += 360; }
+            }
+            else { while (response > 360) { response -= 360; } }
+
+            angle = response;
+        }
         public static float Modify(PresentationObject PresentationObject)
         {
             var response = default(float);

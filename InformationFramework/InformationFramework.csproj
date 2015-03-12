@@ -52,7 +52,7 @@
     <Compile Include="Presentation\Animations\Shake.cs" />
     <Compile Include="Models\InformationItem.cs" />
     <Compile Include="Models\InformationProperty.cs" />
-    <Compile Include="Presentation\Engines\ChannelEngine.cs" />
+    <Compile Include="Presentation\Engines\SpiralEngine.cs" />
     <Compile Include="Presentation\Engines\Engine.cs" />
     <Compile Include="Presentation\Engines\SpreadEngine.cs" />
     <Compile Include="Presentation\Objects\Text.cs" />

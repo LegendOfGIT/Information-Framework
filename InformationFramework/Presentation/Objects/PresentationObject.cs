@@ -10,20 +10,6 @@ namespace InformationFramework.Presentation.Objects
 {
     public class PresentationObject
     {
-        public enum Startposition
-        {
-            Custom,
-            Center,
-            West,
-            Northwest,
-            North,
-            Northeast,
-            East,
-            Southeast,
-            South,
-            Southwest
-        }
-
         public float Angle { get; set; }
         public FloatColor Color { get; set; }
         public bool Enabled { get; set; }
