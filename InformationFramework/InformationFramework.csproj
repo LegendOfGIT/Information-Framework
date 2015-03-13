@@ -55,7 +55,7 @@
     <Compile Include="Presentation\Engines\SpiralEngine.cs" />
     <Compile Include="Presentation\Engines\Engine.cs" />
     <Compile Include="Presentation\Engines\SpreadEngine.cs" />
-    <Compile Include="Presentation\Objects\Text.cs" />
+    <Compile Include="Presentation\Text.cs" />
     <Compile Include="Presentation\Objects\FloatColor.cs" />
     <Compile Include="Presentation\Objects\PresentationObject.cs" />
     <Compile Include="Presentation\Objects\Circle.cs" />

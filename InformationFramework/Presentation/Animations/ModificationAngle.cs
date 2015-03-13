@@ -53,7 +53,7 @@ namespace InformationFramework.Presentation.Modifications
                     foreach (ModificationAngle movement in movements)
                     {
                         var delta = movement.ChangingVector;
-                        var newvalue = 360 - ((response + delta) >= 360 ? (response + delta) : 0);
+                        var newvalue = (response + delta) >= 360 ? 360 - (response + delta) : (response + delta);
                         //  Winkeländerung
                         response =
                             //  Nach Rechts

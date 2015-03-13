@@ -46,6 +46,7 @@ namespace InformationFramework.Presentation.Engines
         public void PopulateInformation()
         {
             var items = Informationitems ?? (Provider.ToArray()[0] as FilesystemProvider).GrabItems();
+            var previouspresentationobject = default(PresentationObject);
             for (int i = 0; i < items.Count(); i++)
             {
                 var item = items.ToArray()[i];
@@ -53,8 +54,8 @@ namespace InformationFramework.Presentation.Engines
                 var type = item.Properties.FirstOrDefault(prop => prop.ID == InformationProperty.Type).Values.FirstOrDefault();
                 var presentationobject = new CircleObject(Startposition.Center, 30f)
                 {
-                    Color = (type == FilesystemProvider.Directory ? Color.Red : Color.Orange).ToFloatColor(),
-                    Enabled = false
+                    Color = (type == FilesystemProvider.Directory ? Color.Red : Color.Orange).ToFloatColor()
+                    //Enabled = false
                 };
 
                 var modificationangle = AngleFactory.Create(Startposition.West);
@@ -65,16 +66,18 @@ namespace InformationFramework.Presentation.Engines
                     TargetVector = modificationangle
                 };
                 for (int x = 0; x <= i; x++) {
-                    AngleFactory.Add(ref modificationangle, 12.5f);
+                    AngleFactory.Add(ref modificationangle, 22.5f);
 
                     if (modification != null) {
+                        var speedup = new ModificationVelocity{ TargetVector = x * 1.3f, ChangingVector = x * 0.90f };
+                        var slowdown = new ModificationVelocity { TargetVector = 0f, ChangingVector = (x * 0.4f) * -1 };
                         modification.Modifications = new Modification[]{
-                            new ModificationAngle{ TargetVector = modificationangle, ChangingVector = 0.5f },
-                            new ModificationVelocity{ TargetVector = x * 0.4f, ChangingVector = 0.3f },
-                            new ModificationVelocity{ TargetVector = 0f, ChangingVector = 20.0f }
+                            new ModificationAngle{ TargetVector = modificationangle, ChangingVector = 7.8f },
+                            speedup
                         };
-
-                        var nextmodification = modification.Modifications.LastOrDefault(mod => mod is ModificationVelocity);
+                        speedup.Modifications = new[] { slowdown };
+                        
+                        var nextmodification = slowdown;
                         nextmodification.Parent = modification;
                         modification = nextmodification;
                     }
@@ -84,9 +87,12 @@ namespace InformationFramework.Presentation.Engines
                     modification = modification.Parent;
                 }
 
+                presentationobject.Connections = previouspresentationobject == null ? null : new[] { previouspresentationobject };
+
                 presentationobject.Modifications = new[]{ modification };
 
                 item.PresentationObject = presentationobject;
+                previouspresentationobject = presentationobject;
             }
             Informationitems = items;
 
@@ -218,8 +224,9 @@ namespace InformationFramework.Presentation.Engines
         }
 
         public void NavigateNext(EventArgs e)
-        {            
-            var highlighteditems = Scene.GetHighlightedItems(Cursor.Position);
+        {
+            var mouseeventargs = e as MouseEventArgs;
+            var highlighteditems = Scene.GetHighlightedItems(mouseeventargs == null ? Cursor.Position : mouseeventargs.Location);
 
             LastLocation = default(Point);
 
