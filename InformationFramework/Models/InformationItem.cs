@@ -19,8 +19,6 @@ namespace InformationFramework.Models
         public IEnumerable<InformationItem> Items { get; set; }
         public IEnumerable<InformationProperty> Properties { get; set; }
         public PresentationObject PresentationObject { get; set; }
-
-
     }
     public static class InformationItemExtensions
     {

@@ -47,52 +47,63 @@ namespace InformationFramework.Presentation.Engines
         {
             var items = Informationitems ?? (Provider.ToArray()[0] as FilesystemProvider).GrabItems();
             var previouspresentationobject = default(PresentationObject);
-            for (int i = 0; i < items.Count(); i++)
+            for (int a = 0; a < items.Count(); a++)
             {
-                var item = items.ToArray()[i];
+                var item = items.ToArray()[a];
 
                 var type = item.Properties.FirstOrDefault(prop => prop.ID == InformationProperty.Type).Values.FirstOrDefault();
-                var presentationobject = new CircleObject(Startposition.Center, 30f)
-                {
+                var presentationobject = new CircleObject(Startposition.Center, 30f) {
                     Color = (type == FilesystemProvider.Directory ? Color.Red : Color.Orange).ToFloatColor()
-                    //Enabled = false
                 };
 
                 var modificationangle = AngleFactory.Create(Startposition.West);
-                var modifications = new List<Modification>();
-                var modification = (Modification)new ModificationAngle {
+                var initialmodification = new ModificationAngle {
                     Active = true,
                     ChangingVector = modificationangle,
                     TargetVector = modificationangle
                 };
-                for (int x = 0; x <= i; x++) {
-                    AngleFactory.Add(ref modificationangle, 22.5f);
+                if (a == items.Count()-1) { 
+                    initialmodification.OnLeave += ItemsMoved_OnLeave;
+                    CurrentItem = items.Last();
+                }
+                presentationobject.Modifications = new[] { initialmodification };
 
-                    if (modification != null) {
-                        var speedup = new ModificationVelocity{ TargetVector = x * 1.3f, ChangingVector = x * 0.90f };
-                        var slowdown = new ModificationVelocity { TargetVector = 0f, ChangingVector = (x * 0.4f) * -1 };
-                        modification.Modifications = new Modification[]{
-                            new ModificationAngle{ TargetVector = modificationangle, ChangingVector = 7.8f },
-                            speedup
-                        };
-                        speedup.Modifications = new[] { slowdown };
+                //var modificationangle = AngleFactory.Create(Startposition.West);
+                //var modifications = new List<Modification>();
+                //var modification = (Modification)new ModificationAngle {
+                //    Active = true,
+                //    ChangingVector = modificationangle,
+                //    TargetVector = modificationangle
+                //};
+                //for (int x = 0; x <= i; x++) {
+                //    AngleFactory.Add(ref modificationangle, 22.5f);
+
+                //    if (modification != null) {
+                //        var speedup = new ModificationVelocity{ TargetVector = x * 1.3f, ChangingVector = x * 0.90f };
+                //        var slowdown = new ModificationVelocity { TargetVector = 0f, ChangingVector = (x * 0.4f) * -1 };
+                //        modification.Modifications = new Modification[]{
+                //            new ModificationAngle{ TargetVector = modificationangle, ChangingVector = 7.8f },
+                //            speedup
+                //        };
+                //        speedup.Modifications = new[] { slowdown };
                         
-                        var nextmodification = slowdown;
-                        nextmodification.Parent = modification;
-                        modification = nextmodification;
-                    }
-                }
+                //        var nextmodification = slowdown;
+                //        nextmodification.Parent = modification;
+                //        modification = nextmodification;
+                //    }
+                //}
 
-                while (modification.Parent != null) {
-                    modification = modification.Parent;
-                }
+                //while (modification.Parent != null) {
+                //    modification = modification.Parent;
+                //}
 
-                presentationobject.Connections = previouspresentationobject == null ? null : new[] { previouspresentationobject };
+                //presentationobject.Connections = previouspresentationobject == null ? null : new[] { previouspresentationobject };
 
-                presentationobject.Modifications = new[]{ modification };
+                //presentationobject.Modifications = new[]{ modification };
 
                 item.PresentationObject = presentationobject;
                 previouspresentationobject = presentationobject;
+                presentationobject.Shadow = (PresentationObject)presentationobject.Clone();
             }
             Informationitems = items;
 
@@ -201,16 +212,68 @@ namespace InformationFramework.Presentation.Engines
             Informationitems = (Provider.ToArray()[0] as FilesystemProvider).GrabItems(chosenitem);
             PopulateInformation();
         }
-        protected void SpreadItems_OnLeave(object sender, EventArgs e)
-        {
-            if (Informationitems != null)
-            {
-                Informationitems.ToList().ForEach(item => { if (item.PresentationObject != null) { item.PresentationObject.Enabled = true; } });
+        protected void ItemsMoved_OnLeave(object sender, EventArgs e) {
+            if (Informationitems != null && CurrentItem != null) {
+                var currentitemindex = Informationitems.ToList().IndexOf(CurrentItem);
+
+                foreach (var item in Informationitems)
+                {
+                    var itemindex = Informationitems.ToList().IndexOf(item);
+
+                    if (itemindex <= currentitemindex) {
+                        var slowdown = MoveStep(item, true);
+
+                        if (item == Informationitems.First() || itemindex == currentitemindex)
+                        {
+                            slowdown.OnLeave += ItemsMoved_OnLeave;
+                            CurrentItem = currentitemindex > 0 && Informationitems.Count() > 0 ? Informationitems.ToArray()[currentitemindex - 1] : null;
+                        }
+                    }
+                }
             }
+        }
+        private Modification MoveStep(InformationItem item, bool forward)
+        {
+            var response = default(Modification);
+
+            var targetvelocityvector = 1.8f;
+
+            var presentationobject = item == null ? null : item.PresentationObject;
+            var presentationshadow = presentationobject == null ? null : presentationobject.Shadow;
+            var modificationangle = presentationshadow == null ? default(float) : presentationshadow.Angle;
+            var shadowvelocity = presentationshadow == null ? default(float) : presentationshadow.Velocity;
+
+            var factor = (forward ? 1 : -1);
+            var steps = shadowvelocity / targetvelocityvector;
+            steps = steps + (1 * factor);
+            var targetvelocity = steps * targetvelocityvector;
+            var speedup = new ModificationVelocity { TargetVector = targetvelocity * factor, ChangingVector = (steps * 0.90f) * factor, Active = true };
+            var slowdown = new ModificationVelocity { TargetVector = 0f, ChangingVector = (steps * 0.4f) * (-1 * factor) };
+
+            AngleFactory.Add(ref modificationangle, (22.5f * factor));
+            presentationobject.Modifications = new Modification[]{
+                new ModificationAngle{ TargetVector = modificationangle, ChangingVector = (7.8f * factor), Active = true },
+                speedup
+            };
+            speedup.Modifications = new[] { slowdown };
+
+            presentationobject.Shadow = (PresentationObject)presentationobject.Clone();
+            presentationobject.Shadow.Velocity = targetvelocity;
+            presentationobject.Shadow.Angle = modificationangle;
+
+            response = slowdown;
+            return response;
         }
 
         public void NavigateDown(EventArgs e)
         {
+            if (Informationitems != null)
+            {
+                foreach (var item in Informationitems)
+                {
+                    var slowdown = MoveStep(item, false);
+                }
+            }
         }
 
         public void NavigatePrevious(EventArgs e)
@@ -284,6 +347,13 @@ namespace InformationFramework.Presentation.Engines
 
         public void NavigateUp(EventArgs e)
         {
+            if (Informationitems != null)
+            {
+                foreach (var item in Informationitems)
+                {
+                    var slowdown = MoveStep(item, true);
+                }
+            }
         }
     }
 }

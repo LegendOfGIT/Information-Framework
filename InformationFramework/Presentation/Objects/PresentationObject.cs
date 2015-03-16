@@ -8,7 +8,7 @@ using InformationFramework.Presentation.Modifications;
 
 namespace InformationFramework.Presentation.Objects
 {
-    public class PresentationObject
+    public class PresentationObject : ICloneable
     {
         public float Angle { get; set; }
         public FloatColor Color { get; set; }
@@ -19,6 +19,8 @@ namespace InformationFramework.Presentation.Objects
         public int Shapeheight { get { return Shape != null && Shape.Any() ? (int)(Shape.Min(point => point.Y) + Shape.Max(point => point.Y)) : default(int); } }
         public float Size { get; set; }
         public float Velocity { get; set; }
+
+        public PresentationObject Shadow { get; set; }
 
         public IEnumerable<PresentationObject> Connections { get; set; }
         public IEnumerable<Modification> Modifications { get; set; }
@@ -103,6 +105,11 @@ namespace InformationFramework.Presentation.Objects
                 //  Auslösen eines Abschlussevents
                 modification.OnLeaveHandler(this);
             }
+        }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
         }
     }
 }
