@@ -8,6 +8,8 @@ namespace InformationFramework.Presentation.Engines
 {
     interface Engine
     {
+        bool Enabled { get; set; }
+
         void Initialize();
         void PopulateInformation();
         void NavigateDown(EventArgs e);

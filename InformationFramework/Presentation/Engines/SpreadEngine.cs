@@ -26,6 +26,8 @@ namespace InformationFramework.Presentation.Engines
             new FilesystemProvider{}
         };
 
+        public bool Enabled { get; set; }
+
         public SpreadEngine() { }
         public SpreadEngine(Scene Scene)
         {

@@ -16,6 +16,7 @@ namespace InformationFramework.Presentation.Engines
     {
         private Scene Scene = default(Scene);
         private InformationItem CurrentItem = default(InformationItem);
+        private Startposition Direction = Startposition.North;
         private IEnumerable<PresentationObject> HighlightedItems = default(IEnumerable<PresentationObject>);
         private IEnumerable<InformationItem> Informationitems = default(IEnumerable<InformationItem>);
         private EventHandler Items_OnEnter = default(EventHandler);
@@ -26,10 +27,13 @@ namespace InformationFramework.Presentation.Engines
             new FilesystemProvider{}
         };
 
+        public bool Enabled { get; set; }
+
         public SpiralEngine() { }
         public SpiralEngine(Scene Scene)
         {
             this.Scene = Scene;
+            this.Enabled = true;
         }
 
         public void Initialize()
@@ -214,6 +218,7 @@ namespace InformationFramework.Presentation.Engines
         }
         protected void ItemsMoved_OnLeave(object sender, EventArgs e) {
             if (Informationitems != null && CurrentItem != null) {
+                this.Enabled = false;
                 var currentitemindex = Informationitems.ToList().IndexOf(CurrentItem);
 
                 foreach (var item in Informationitems)
@@ -223,7 +228,7 @@ namespace InformationFramework.Presentation.Engines
                     if (itemindex <= currentitemindex) {
                         var slowdown = MoveStep(item, true);
 
-                        if (item == Informationitems.First() || itemindex == currentitemindex)
+                        if (item == Informationitems.Last() || itemindex == currentitemindex)
                         {
                             slowdown.OnLeave += ItemsMoved_OnLeave;
                             CurrentItem = currentitemindex > 0 && Informationitems.Count() > 0 ? Informationitems.ToArray()[currentitemindex - 1] : null;
@@ -231,6 +236,7 @@ namespace InformationFramework.Presentation.Engines
                     }
                 }
             }
+            else { this.Enabled = true; }
         }
         private Modification MoveStep(InformationItem item, bool forward)
         {
@@ -243,14 +249,24 @@ namespace InformationFramework.Presentation.Engines
             var modificationangle = presentationshadow == null ? default(float) : presentationshadow.Angle;
             var shadowvelocity = presentationshadow == null ? default(float) : presentationshadow.Velocity;
 
+            var keepmodifications =
+                (forward && Direction == Startposition.South) ||
+                (!forward && Direction == Startposition.North)
+            ;
             var factor = (forward ? 1 : -1);
             var steps = shadowvelocity / targetvelocityvector;
-            steps = steps + (1 * factor);
+            steps =
+                keepmodifications ? steps :
+                steps + (1 * factor)
+            ;
             var targetvelocity = steps * targetvelocityvector;
             var speedup = new ModificationVelocity { TargetVector = targetvelocity * factor, ChangingVector = (steps * 0.90f) * factor, Active = true };
-            var slowdown = new ModificationVelocity { TargetVector = 0f, ChangingVector = (steps * 0.4f) * (-1 * factor) };
+            var slowdown = new ModificationVelocity { TargetVector = 0f, ChangingVector = (steps * 4.21f) * (-1 * factor) };
 
-            AngleFactory.Add(ref modificationangle, (22.5f * factor));
+            if (!keepmodifications) { 
+                AngleFactory.Add(ref modificationangle, (22.5f * factor));
+            }
+
             presentationobject.Modifications = new Modification[]{
                 new ModificationAngle{ TargetVector = modificationangle, ChangingVector = (7.8f * factor), Active = true },
                 speedup
@@ -262,17 +278,28 @@ namespace InformationFramework.Presentation.Engines
             presentationobject.Shadow.Angle = modificationangle;
 
             response = slowdown;
+
             return response;
         }
 
         public void NavigateDown(EventArgs e)
         {
-            if (Informationitems != null)
+            if (Informationitems != null && this.Enabled)
             {
+                var currentitemindex = Informationitems.ToList().IndexOf(CurrentItem);
+                this.Enabled = false;
                 foreach (var item in Informationitems)
                 {
+                    var itemindex = Informationitems.ToList().IndexOf(item);
                     var slowdown = MoveStep(item, false);
+
+                    if (item == Informationitems.Last() || itemindex == currentitemindex)
+                    {
+                        slowdown.OnLeave += ItemsMoved_OnLeave;
+                    }
                 }
+
+                Direction = Startposition.South;
             }
         }
 
@@ -347,12 +374,21 @@ namespace InformationFramework.Presentation.Engines
 
         public void NavigateUp(EventArgs e)
         {
-            if (Informationitems != null)
+            if (Informationitems != null && this.Enabled)
             {
+                var currentitemindex = Informationitems.ToList().IndexOf(CurrentItem);
+                this.Enabled = false;
                 foreach (var item in Informationitems)
                 {
+                    var itemindex = Informationitems.ToList().IndexOf(item);
                     var slowdown = MoveStep(item, true);
+
+                    if (item == Informationitems.Last() || itemindex == currentitemindex) {
+                        slowdown.OnLeave += ItemsMoved_OnLeave;
+                    }
                 }
+
+                Direction = Startposition.North;
             }
         }
     }
