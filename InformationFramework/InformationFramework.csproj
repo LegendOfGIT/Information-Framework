@@ -47,6 +47,7 @@
     <Compile Include="Presentation\Animations\ModificationPosition.cs" />
     <Compile Include="Presentation\Animations\ModificationConnections.cs" />
     <Compile Include="Presentation\Animations\ModificationColor.cs" />
+    <Compile Include="Presentation\Animations\ModificationSize.cs" />
     <Compile Include="Presentation\Animations\ModificationVelocity.cs" />
     <Compile Include="Presentation\Animations\ModificationAngle.cs" />
     <Compile Include="Presentation\Animations\Shake.cs" />

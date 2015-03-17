@@ -112,4 +112,27 @@ namespace InformationFramework.Presentation.Objects
             return this.MemberwiseClone();
         }
     }
+
+    public static class PresentationObjectExtensions
+    {
+        public static bool Equals(this IEnumerable<PresentationObject> source, IEnumerable<PresentationObject> target)
+        {
+            var response = default(bool);
+            var sourceany = source != null && source.Any();
+            var targetany = target != null && target.Any();
+
+            response = sourceany != targetany;
+            if (!response && sourceany)
+            {
+                response = true;
+                response = !source.Any(item => target.Any(titem => item.GetHashCode() == item.GetHashCode()));
+                response =
+                    !response ? response :
+                    !target.Any(item => source.Any(sitem => item.GetHashCode() == item.GetHashCode()))
+                ;
+            }
+
+            return response;
+        }
+    }
 }

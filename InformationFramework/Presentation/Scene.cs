@@ -60,6 +60,8 @@ namespace InformationFramework.Presentation
                 //  Form und Farbe
                 //  Farbänderung
                 ColorFactory.Modify(PresentationObject);
+                //  Größenänderung
+                SizeFactory.Modify(PresentationObject);
 
                 matrix = new Matrix();
                 matrix.Translate(

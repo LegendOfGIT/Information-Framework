@@ -78,16 +78,14 @@ namespace InformationFramework.Presentation.Engines
             }
             var items = Scene.GetHighlightedItems(e.Location);
 
-            if (items != HighlightedItems && items.Any())
-            {
+            if (items.Any() && !items.Equals(HighlightedItems)) {
                 if (Items_OnEnter != null) { Items_OnEnter.Invoke(items, new EventArgs()); }
                 if (Items_OnLeave != null) { Items_OnLeave.Invoke(HighlightedItems, new EventArgs()); }
             }
 
-            if (items != null)
-            {
-                foreach (var highlighteditem in items)
-                {
+            if (items != null) {
+                foreach (var highlighteditem in items) {
+                    Console.WriteLine("Highlighted: " + highlighteditem.GetHashCode());
                     highlighteditem.Color = Color.Green.ToFloatColor();
                 }
             }
@@ -103,6 +101,20 @@ namespace InformationFramework.Presentation.Engines
             ;
             if (info != null)
             {
+                var infopresentation = info.PresentationObject;
+                if (infopresentation != null) {
+                    infopresentation.Modifications = 
+                        infopresentation.ActiveModifications.Any(mod => mod is ModificationSize) ? infopresentation.Modifications :
+                        new[]{
+                            new ModificationSize{ 
+                                Active = true, TargetVector = infopresentation.Size + 33f, Vector = 4.5f, Modifications = new []{
+                                    new ModificationSize{ TargetVector = infopresentation.Size, Vector = -6f }
+                                }
+                            }
+                        }
+                    ;
+                }
+
                 Infotextitem = Infotextitem ?? new InformationItem { };
                 var type = info.Properties.FirstOrDefault(prop => prop.ID == InformationProperty.Type).Values.FirstOrDefault();
                 var textpresentation = new TextObject(Startposition.Northwest, 20)

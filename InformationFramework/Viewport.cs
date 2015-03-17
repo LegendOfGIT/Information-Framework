@@ -31,7 +31,7 @@ namespace InformationFramework
             this.Size = new Size(screenbounds.Width, screenbounds.Height);
             Scene = new Scene(this);
 
-            Engine = new SpiralEngine(Scene);
+            Engine = new SpreadEngine(Scene);
             Engine.Initialize();
         }
 
