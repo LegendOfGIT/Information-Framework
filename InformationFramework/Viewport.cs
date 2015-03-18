@@ -18,7 +18,9 @@ namespace InformationFramework
     public partial class Viewport : Form
     {
         private Engine Engine = default(Engine);
+        private IEnumerable<PresentationObject> HighlightedItems = default(IEnumerable<PresentationObject>);
         private Scene Scene = default(Scene);
+        private Point LastLocation = default(Point);
 
         public Viewport()
         {
@@ -48,6 +50,7 @@ namespace InformationFramework
         private void Viewport_MouseUp(object sender, MouseEventArgs e)
         {
             if (e.Button == System.Windows.Forms.MouseButtons.Left) {
+                LastLocation = default(Point);
                 Engine.NavigateNext(e);
             }
             else if (e.Button == System.Windows.Forms.MouseButtons.Right)
@@ -70,6 +73,31 @@ namespace InformationFramework
             if (e.KeyCode == Keys.Escape) {
                 this.Dispose();
             }
+        }
+
+        private void Viewport_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.Button == System.Windows.Forms.MouseButtons.Left) {
+                if (LastLocation != default(Point))
+                {
+                    Scene.OffsetPosition = new PointF(
+                        Scene.OffsetPosition.X - (LastLocation.X - e.X),
+                        Scene.OffsetPosition.Y - (LastLocation.Y - e.Y)
+                    );
+                }
+
+                LastLocation = e.Location;
+            }
+
+            //  Highlighting
+            var items = Scene.GetHighlightedItems(e.Location);
+
+            if (!items.HashEquals(HighlightedItems)) {
+                Engine.Highlight_Enter(items);
+                Engine.Highlight_Leave(HighlightedItems);
+            }
+
+            HighlightedItems = items;
         }
     }
 }

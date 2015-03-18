@@ -48,6 +48,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Load += new System.EventHandler(this.Viewport_Load);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.Viewport_KeyUp);
+            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Viewport_MouseMove);
             this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Viewport_MouseUp);
             this.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.Viewport_MouseWheel);
             this.ResumeLayout(false);

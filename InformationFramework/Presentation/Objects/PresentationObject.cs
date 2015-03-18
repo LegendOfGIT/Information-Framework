@@ -115,24 +115,12 @@ namespace InformationFramework.Presentation.Objects
 
     public static class PresentationObjectExtensions
     {
-        public static bool Equals(this IEnumerable<PresentationObject> source, IEnumerable<PresentationObject> target)
+        public static bool HashEquals(this IEnumerable<PresentationObject> source, IEnumerable<PresentationObject> target)
         {
-            var response = default(bool);
-            var sourceany = source != null && source.Any();
-            var targetany = target != null && target.Any();
+            var hashcodesource = source != null && source.Any() ? string.Join(";", source.OrderBy(item => item.GetHashCode()).Select(item => item.GetHashCode())) : null;
+            var hashcodetarget = target != null && target.Any() ? string.Join(";", target.OrderBy(item => item.GetHashCode()).Select(item => item.GetHashCode())) : null;
 
-            response = sourceany != targetany;
-            if (!response && sourceany)
-            {
-                response = true;
-                response = !source.Any(item => target.Any(titem => item.GetHashCode() == item.GetHashCode()));
-                response =
-                    !response ? response :
-                    !target.Any(item => source.Any(sitem => item.GetHashCode() == item.GetHashCode()))
-                ;
-            }
-
-            return response;
+            return hashcodesource == hashcodetarget;
         }
     }
 }

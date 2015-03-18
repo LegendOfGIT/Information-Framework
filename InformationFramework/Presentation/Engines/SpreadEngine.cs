@@ -16,12 +16,8 @@ namespace InformationFramework.Presentation.Engines
     {
         private Scene Scene = default(Scene);
         private InformationItem CurrentItem = default(InformationItem);
-        private IEnumerable<PresentationObject> HighlightedItems = default(IEnumerable<PresentationObject>);
         private IEnumerable<InformationItem> Informationitems = default(IEnumerable<InformationItem>);
-        private EventHandler Items_OnEnter = default(EventHandler);
-        private EventHandler Items_OnLeave = default(EventHandler);
         private InformationItem Infotextitem = default(InformationItem);
-        private Point LastLocation = default(Point);
         private IEnumerable<ProviderBase> Provider = new List<ProviderBase> {
             new FilesystemProvider{}
         };
@@ -33,7 +29,6 @@ namespace InformationFramework.Presentation.Engines
         {
             this.Scene = Scene;
         }
-
 
         protected void MouseUp(object sender, MouseEventArgs e)
         {
@@ -51,90 +46,8 @@ namespace InformationFramework.Presentation.Engines
         }
         protected void MouseMove(object sender, MouseEventArgs e)
         {
-            if (e.Button == System.Windows.Forms.MouseButtons.Left)
-            {
-                if (LastLocation != default(Point))
-                {
-                    Scene.OffsetPosition = new PointF(
-                        Scene.OffsetPosition.X - (LastLocation.X - e.X),
-                        Scene.OffsetPosition.Y - (LastLocation.Y - e.Y)
-                    );
-                }
-
-                LastLocation = e.Location;
-            }
-
-            //  Highlight
-            if (Informationitems != null)
-            {
-                Informationitems.ToList().ForEach(infoitem =>
-                {
-                    var type = infoitem.Properties.FirstOrDefault(prop => prop.ID == InformationProperty.Type).Values.FirstOrDefault();
-                    if (infoitem.PresentationObject != null && infoitem.PresentationObject.Enabled)
-                    {
-                        infoitem.PresentationObject.Color = (type == FilesystemProvider.Directory ? Color.Red : Color.Orange).ToFloatColor();
-                    }
-                });
-            }
-            var items = Scene.GetHighlightedItems(e.Location);
-
-            if (items.Any() && !items.Equals(HighlightedItems)) {
-                if (Items_OnEnter != null) { Items_OnEnter.Invoke(items, new EventArgs()); }
-                if (Items_OnLeave != null) { Items_OnLeave.Invoke(HighlightedItems, new EventArgs()); }
-            }
-
-            if (items != null) {
-                foreach (var highlighteditem in items) {
-                    Console.WriteLine("Highlighted: " + highlighteditem.GetHashCode());
-                    highlighteditem.Color = Color.Green.ToFloatColor();
-                }
-            }
-            HighlightedItems = items;
         }
 
-        protected void HighlightedItems_OnEnter(object sender, EventArgs e)
-        {
-            var items = sender as IEnumerable<PresentationObject>;
-            var info =
-                items == null || !items.Any() ? null :
-                Informationitems.FirstOrDefault(item => item.PresentationObject == items.FirstOrDefault())
-            ;
-            if (info != null)
-            {
-                var infopresentation = info.PresentationObject;
-                if (infopresentation != null) {
-                    infopresentation.Modifications = 
-                        infopresentation.ActiveModifications.Any(mod => mod is ModificationSize) ? infopresentation.Modifications :
-                        new[]{
-                            new ModificationSize{ 
-                                Active = true, TargetVector = infopresentation.Size + 33f, Vector = 4.5f, Modifications = new []{
-                                    new ModificationSize{ TargetVector = infopresentation.Size, Vector = -6f }
-                                }
-                            }
-                        }
-                    ;
-                }
-
-                Infotextitem = Infotextitem ?? new InformationItem { };
-                var type = info.Properties.FirstOrDefault(prop => prop.ID == InformationProperty.Type).Values.FirstOrDefault();
-                var textpresentation = new TextObject(Startposition.Northwest, 20)
-                {
-                    Text = string.Format(
-                        "{0}: {1}",
-                        type,
-                        info.Properties.FirstOrDefault(prop => prop.ID == FilesystemProvider.Directory).Values.FirstOrDefault()
-                    ),
-                    Color = (type == FilesystemProvider.Directory ? Color.Red : Color.Orange).ToFloatColor()
-                };
-
-                Scene.PresentationObjects.Remove(Infotextitem.PresentationObject);
-                Infotextitem.PresentationObject = textpresentation;
-                Scene.PresentationObjects.Add(Infotextitem.PresentationObject);
-            }
-        }
-        protected void HighlightedItems_OnLeave(object sender, EventArgs e)
-        {
-        }
         protected void ReturnToCenter_OnLeave(object sender, EventArgs e)
         {
             var chosenitem = Informationitems.FirstOrDefault(item => item.PresentationObject == sender as PresentationObject);
@@ -151,8 +64,6 @@ namespace InformationFramework.Presentation.Engines
 
         public void Initialize()
         {
-            this.Items_OnEnter += HighlightedItems_OnEnter;
-
             var form = Scene.Parent;
             if (form != null)
             {
@@ -208,6 +119,72 @@ namespace InformationFramework.Presentation.Engines
             }
         }
 
+        public void Highlight_Enter(IEnumerable<PresentationObject> items)
+        {
+            var info =
+                items == null || !items.Any() ? null :
+                Informationitems.FirstOrDefault(item => item.PresentationObject == items.FirstOrDefault())
+            ;
+            if (info != null)
+            {
+                var infopresentation = info.PresentationObject;
+                if (infopresentation != null)
+                {
+                    infopresentation.Modifications =
+                        infopresentation.ActiveModifications.Any(mod => mod is ModificationSize) ? infopresentation.Modifications :
+                        new[]{
+                            new ModificationSize{ 
+                                Active = true, TargetVector = infopresentation.Size + 33f, Vector = 4.5f
+                            }
+                        }
+                    ;
+                    infopresentation.Color = Color.Green.ToFloatColor();
+                }
+
+                Infotextitem = Infotextitem ?? new InformationItem { };
+                var type = info.Properties.FirstOrDefault(prop => prop.ID == InformationProperty.Type).Values.FirstOrDefault();
+                var textpresentation = new TextObject(Startposition.Northwest, 20)
+                {
+                    Text = string.Format(
+                        "{0}: {1}",
+                        type,
+                        info.Properties.FirstOrDefault(prop => prop.ID == FilesystemProvider.Directory).Values.FirstOrDefault()
+                    ),
+                    Color = (type == FilesystemProvider.Directory ? Color.Red : Color.Orange).ToFloatColor()
+                };
+
+                Scene.PresentationObjects.Remove(Infotextitem.PresentationObject);
+                Infotextitem.PresentationObject = textpresentation;
+                Scene.PresentationObjects.Add(Infotextitem.PresentationObject);
+            }
+        }
+        public void Highlight_Leave(IEnumerable<PresentationObject> items)
+        {
+            var info =
+                items == null || !items.Any() ? null :
+                Informationitems.FirstOrDefault(item => item.PresentationObject == items.FirstOrDefault())
+            ;
+            if (info != null)
+            {
+                var type = info.Properties.FirstOrDefault(prop => prop.ID == InformationProperty.Type).Values.FirstOrDefault();
+                var infopresentation = info.PresentationObject;
+                if (infopresentation != null)
+                {
+                    infopresentation.Modifications =
+                        infopresentation.ActiveModifications.Any(mod => mod is ModificationSize) ? infopresentation.Modifications :
+                        new[]{
+                            new ModificationSize{ 
+                                Active = true, TargetVector = infopresentation.Size - 33f, Vector = -6f
+                            }
+                        }
+                    ;
+
+                    if (infopresentation.Enabled) {
+                        infopresentation.Color = (type == FilesystemProvider.Directory ? Color.Red : Color.Orange).ToFloatColor();
+                    }
+                }
+            }
+        }
         public void NavigateDown(EventArgs e)
         {
         }
@@ -223,8 +200,6 @@ namespace InformationFramework.Presentation.Engines
         {
             var mouseevent = e as MouseEventArgs;
             var highlighteditems = Scene.GetHighlightedItems(mouseevent == null ? Cursor.Position : mouseevent.Location);
-
-            LastLocation = default(Point);
 
             var chosenitem = Informationitems.GetInformationItem(highlighteditems.FirstOrDefault());
 

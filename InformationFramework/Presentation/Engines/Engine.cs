@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+using InformationFramework.Presentation.Objects;
 
 namespace InformationFramework.Presentation.Engines
 {
@@ -11,6 +10,9 @@ namespace InformationFramework.Presentation.Engines
         bool Enabled { get; set; }
 
         void Initialize();
+
+        void Highlight_Enter(IEnumerable<PresentationObject> items);
+        void Highlight_Leave(IEnumerable<PresentationObject> items);
         void PopulateInformation();
         void NavigateDown(EventArgs e);
         /// <summary>
