@@ -50,6 +50,7 @@
     <Compile Include="Presentation\Animations\ModificationSize.cs" />
     <Compile Include="Presentation\Animations\ModificationVelocity.cs" />
     <Compile Include="Presentation\Animations\ModificationAngle.cs" />
+    <Compile Include="Presentation\Animations\Glimmer.cs" />
     <Compile Include="Presentation\Animations\Shake.cs" />
     <Compile Include="Models\InformationItem.cs" />
     <Compile Include="Models\InformationProperty.cs" />

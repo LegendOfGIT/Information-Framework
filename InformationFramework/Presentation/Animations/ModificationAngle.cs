@@ -9,7 +9,7 @@ namespace InformationFramework.Presentation.Modifications
     public class ModificationAngle : Modification
     {
         public float TargetVector { get; set; }
-        public float ChangingVector { get; set; }
+        public float Vector { get; set; }
     }   
     public static class AngleFactory
     {
@@ -52,7 +52,7 @@ namespace InformationFramework.Presentation.Modifications
                 {
                     foreach (ModificationAngle movement in movements)
                     {
-                        var delta = movement.ChangingVector;
+                        var delta = movement.Vector;
                         var newvalue = (response + delta) >= 360 ? 360 - (response + delta) : (response + delta);
                         //  Winkeländerung
                         response =

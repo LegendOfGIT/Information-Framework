@@ -13,6 +13,7 @@ namespace InformationFramework.Presentation
     {
         public Form Parent;
         private BufferedGraphics BufferedGraphics = default(BufferedGraphics);
+        private object Graphicslocker = new object();
 
         public PointF OffsetPosition { get; set; }
         public List<PresentationObject> PresentationObjects = new List<PresentationObject>();
@@ -34,75 +35,88 @@ namespace InformationFramework.Presentation
 
             var matrix = default(Matrix);
 
-            foreach (var PresentationObject in PresentationObjects)
+            if (PresentationObjects != null)
             {
-                var modifications = PresentationObject.ActiveModifications;
+                PresentationObjects.ForEach(PresentationObject =>
+                {
+                    var modifications = PresentationObject.ActiveModifications;
 
-                #region Objektbewegung
-                var point = PresentationObject.Position;
-                if (point.HasValue) {
-                    //  Winkeländerung
-                    var angle = AngleFactory.Modify(PresentationObject);
+                    #region Objektbewegung
+                    var point = PresentationObject.Position;
+                    if (point.HasValue)
+                    {
+                        //  Winkeländerung
+                        var angle = AngleFactory.Modify(PresentationObject);
 
-                    //  Geschwindigkeitsänderung
-                    var velocity = VelocityFactory.Modify(PresentationObject);
+                        //  Geschwindigkeitsänderung
+                        var velocity = VelocityFactory.Modify(PresentationObject);
 
-                    PresentationObject.Angle = angle;
-                    PresentationObject.Velocity = velocity;
+                        PresentationObject.Angle = angle;
+                        PresentationObject.Velocity = velocity;
 
-                    var deltaX = (float)(Math.Sin((Math.PI * PresentationObject.Angle) / 180) * velocity);
-                    var deltaY = (float)(-Math.Cos((Math.PI * PresentationObject.Angle) / 180) * velocity);
+                        var deltaX = (float)(Math.Sin((Math.PI * PresentationObject.Angle) / 180) * velocity);
+                        var deltaY = (float)(-Math.Cos((Math.PI * PresentationObject.Angle) / 180) * velocity);
 
-                    point = new PointF(point.Value.X + deltaX, point.Value.Y + deltaY);
-                }
-                PresentationObject.Position = point;
-                #endregion
-                //  Form und Farbe
-                //  Farbänderung
-                ColorFactory.Modify(PresentationObject);
-                //  Größenänderung
-                SizeFactory.Modify(PresentationObject);
-
-                matrix = new Matrix();
-                matrix.Translate(
-                    (point == null ? 0 : point.Value.X + OffsetPosition.X),
-                    (point == null ? 0 : point.Value.Y + OffsetPosition.Y),
-                    MatrixOrder.Append
-                );
-                graphics.Transform = matrix;
-
-                var brush = ColorFactory.CreateBrush(PresentationObject);
-                var shape = PresentationObject == null ? null : PresentationObject.Shape;
-                if (shape != null && shape.Any()) {
-                    //  Kreisform
-                    if (PresentationObject is CircleObject) {
-                        var point1 = shape.Count > 0 ? shape[0] : new PointF();
-                        var point3 = shape.Count > 2 ? shape[2] : new PointF();
-                        graphics.FillEllipse(
-                            brush,
-                            point1.X,
-                            point1.Y,
-                            point3.X,
-                            point3.Y
-                        );
+                        point = new PointF(point.Value.X + deltaX, point.Value.Y + deltaY);
                     }
-                    //  Polygon
-                    else {
-                        graphics.FillPolygon(brush, shape.ToArray()); 
-                    }                    
-                }
+                    PresentationObject.Position = point;
+                    #endregion
+                    //  Form und Farbe
+                    //  Farbänderung
+                    ColorFactory.Modify(PresentationObject);
+                    //  Größenänderung
+                    SizeFactory.Modify(PresentationObject);
 
-                //  Text
-                if (PresentationObject is TextObject) {
-                    graphics.DrawString(
-                        ((TextObject)PresentationObject).Text,
-                        new Font("Arial", PresentationObject.Size),
-                        brush,
-                        new PointF(0, 0)
+                    matrix = new Matrix();
+                    matrix.Translate(
+                        (point == null ? 0 : point.Value.X + OffsetPosition.X),
+                        (point == null ? 0 : point.Value.Y + OffsetPosition.Y),
+                        MatrixOrder.Append
                     );
-                }
-            }
 
+                    lock (Graphicslocker) { graphics.Transform = matrix; }
+
+                    var brush = ColorFactory.CreateBrush(PresentationObject);
+                    var shape = PresentationObject == null ? null : PresentationObject.Shape;
+                    if (shape != null && shape.Any())
+                    {
+                        //  Kreisform
+                        if (PresentationObject is CircleObject)
+                        {
+                            var point1 = shape.Count > 0 ? shape[0] : new PointF();
+                            var point3 = shape.Count > 2 ? shape[2] : new PointF();
+                            lock (Graphicslocker) {
+                                graphics.FillEllipse(
+                                    brush,
+                                    point1.X,
+                                    point1.Y,
+                                    point3.X,
+                                    point3.Y
+                                );
+                            }
+                        }
+                        //  Polygon
+                        else
+                        {
+                            lock (Graphicslocker) { graphics.FillPolygon(brush, shape.ToArray()); }
+                        }
+                    }
+
+                    //  Text
+                    if (PresentationObject is TextObject)
+                    {
+                        lock (Graphicslocker) {
+                            graphics.DrawString(
+                                ((TextObject)PresentationObject).Text,
+                                new Font("Arial", PresentationObject.Size),
+                                brush,
+                                new PointF(0, 0)
+                            );
+                        }
+                    }
+                });
+            }
+            
             #region Linie zwischen verbundenen Objekten
             matrix = new Matrix();
             matrix.Translate(
@@ -112,10 +126,15 @@ namespace InformationFramework.Presentation
             );
             graphics.Transform = matrix;
 
-            if (PresentationObjects != null && PresentationObjects.Any()) {
-                foreach (var PresentationObject in PresentationObjects) {
-                    ConnectionFactory.Connect(graphics, PresentationObject, OffsetPosition);
-                }
+            if (PresentationObjects != null) {
+                PresentationObjects.AsParallel().ForAll(PresentationObject => {
+                    ConnectionFactory.Connect(
+                        graphics, 
+                        PresentationObject, 
+                        OffsetPosition,
+                        Graphicslocker
+                    );
+                });
             }
             #endregion
 

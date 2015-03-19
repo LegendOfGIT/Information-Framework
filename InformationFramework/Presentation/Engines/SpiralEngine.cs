@@ -57,7 +57,7 @@ namespace InformationFramework.Presentation.Engines
                 var modificationangle = AngleFactory.Create(Startposition.West);
                 var initialmodification = new ModificationAngle {
                     Active = true,
-                    ChangingVector = modificationangle,
+                    Vector = modificationangle,
                     TargetVector = modificationangle
                 };
                 if (a == items.Count()-1) { 
@@ -134,12 +134,6 @@ namespace InformationFramework.Presentation.Engines
         {
         }
 
-        protected void ReturnToCenter_OnLeave(object sender, EventArgs e)
-        {
-            var chosenitem = Informationitems.FirstOrDefault(item => item.PresentationObject == sender as PresentationObject);
-            Informationitems = (Provider.ToArray()[0] as FilesystemProvider).GrabItems(chosenitem);
-            PopulateInformation();
-        }
         protected void ItemsMoved_OnLeave(object sender, EventArgs e) {
             if (Informationitems != null && CurrentItem != null) {
                 this.Enabled = false;
@@ -184,15 +178,15 @@ namespace InformationFramework.Presentation.Engines
                 steps + (1 * factor)
             ;
             var targetvelocity = steps * targetvelocityvector;
-            var speedup = new ModificationVelocity { TargetVector = targetvelocity * factor, ChangingVector = (steps * 0.90f) * factor, Active = true };
-            var slowdown = new ModificationVelocity { TargetVector = 0f, ChangingVector = (steps * 4.21f) * (-1 * factor) };
+            var speedup = new ModificationVelocity { TargetVector = targetvelocity * factor, Vector = (steps * 0.90f) * factor, Active = true };
+            var slowdown = new ModificationVelocity { TargetVector = 0f, Vector = (steps * 4.21f) * (-1 * factor) };
 
             if (!keepmodifications) { 
                 AngleFactory.Add(ref modificationangle, (22.5f * factor));
             }
 
             presentationobject.Modifications = new Modification[]{
-                new ModificationAngle{ TargetVector = modificationangle, ChangingVector = (7.8f * factor), Active = true },
+                new ModificationAngle{ TargetVector = modificationangle, Vector = (7.8f * factor), Active = true },
                 speedup
             };
             speedup.Modifications = new[] { slowdown };
@@ -303,17 +297,21 @@ namespace InformationFramework.Presentation.Engines
                         {
                             AngleFactory.Uturn(chosenpresentationobject);
 
-                            var slowdown = new ModificationVelocity { ChangingVector = -0.069f, TargetVector = 0f };
+                            var slowdown = new ModificationVelocity { Vector = -0.069f, TargetVector = 0f };
                             var speedup = new ModificationVelocity
                             {
                                 Active = true,
-                                ChangingVector = 6f,
+                                Vector = 6f,
                                 TargetVector = 6f,
                                 Modifications = new Modification[]{
                                         slowdown
                                     }
                             };
-                            slowdown.OnLeave += ReturnToCenter_OnLeave;
+                            slowdown.OnLeave += new EventHandler(delegate {
+                                Informationitems = (Provider.ToArray()[0] as FilesystemProvider).GrabItems(chosenitem);
+                                PopulateInformation();
+                            });
+
                             modifications.Add(speedup);
                             presentationobject.Modifications = modifications;
 
@@ -324,7 +322,7 @@ namespace InformationFramework.Presentation.Engines
                             var fadeout = new ModificationColor
                             {
                                 Active = true,
-                                ChangingVector = 4.5f,
+                                Vector = 4.5f,
                                 TargetRed = 0f
                             };
                             modifications.Add(fadeout);

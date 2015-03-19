@@ -48,20 +48,6 @@ namespace InformationFramework.Presentation.Engines
         {
         }
 
-        protected void ReturnToCenter_OnLeave(object sender, EventArgs e)
-        {
-            var chosenitem = Informationitems.FirstOrDefault(item => item.PresentationObject == sender as PresentationObject);
-            Informationitems = (Provider.ToArray()[0] as FilesystemProvider).GrabItems(chosenitem);
-            PopulateInformation();
-        }
-        protected void SpreadItems_OnLeave(object sender, EventArgs e)
-        {
-            if (Informationitems != null)
-            {
-                Informationitems.ToList().ForEach(item => { if (item.PresentationObject != null) { item.PresentationObject.Enabled = true; } });
-            }
-        }
-
         public void Initialize()
         {
             var form = Scene.Parent;
@@ -91,17 +77,20 @@ namespace InformationFramework.Presentation.Engines
                     Enabled = false
                 };
                 var modifications = new List<Modification>();
-                var slowdown = new ModificationVelocity { ChangingVector = -0.069f, TargetVector = 0f }; slowdown.OnLeave += SpreadItems_OnLeave;
+                var slowdown = new ModificationVelocity { Vector = -0.069f, TargetVector = 0f }; 
+                slowdown.OnLeave += new EventHandler(delegate { presentationobject.Enabled = true; });
+
                 var speedup = new ModificationVelocity
                 {
                     Active = true,
-                    ChangingVector = 6f,
+                    Vector = 6f,
                     TargetVector = 6f,
                     Modifications = new Modification[]{
                         slowdown
                     }
                 };
                 modifications.Add(speedup);
+                modifications.AddRange(new Glimmer(presentationobject).Movements);
                 presentationobject.Modifications = modifications;
 
                 item.PresentationObject = presentationobject;
@@ -221,17 +210,21 @@ namespace InformationFramework.Presentation.Engines
                         {
                             AngleFactory.Uturn(chosenpresentationobject);
 
-                            var slowdown = new ModificationVelocity { ChangingVector = -0.069f, TargetVector = 0f };
+                            var slowdown = new ModificationVelocity { Vector = -0.069f, TargetVector = 0f };
                             var speedup = new ModificationVelocity
                             {
                                 Active = true,
-                                ChangingVector = 6f,
+                                Vector = 6f,
                                 TargetVector = 6f,
                                 Modifications = new Modification[]{
-                                        slowdown
-                                    }
+                                    slowdown
+                                }
                             };
-                            slowdown.OnLeave += ReturnToCenter_OnLeave;
+                            slowdown.OnLeave += new EventHandler(delegate{
+                                Informationitems = (Provider.ToArray()[0] as FilesystemProvider).GrabItems(chosenitem);
+                                PopulateInformation();
+                            });
+
                             modifications.Add(speedup);
                             presentationobject.Modifications = modifications;
 
@@ -242,7 +235,7 @@ namespace InformationFramework.Presentation.Engines
                             var fadeout = new ModificationColor
                             {
                                 Active = true,
-                                ChangingVector = 4.5f,
+                                Vector = 4.5f,
                                 TargetRed = 0f
                             };
                             modifications.Add(fadeout);

@@ -92,9 +92,12 @@ namespace InformationFramework.Presentation.Objects
                 else {
                     var parentmodification = modification.Parent;
                     while (parentmodification != null) {
-                        if (parentmodification.Repetitions > 0)
+                        var repetitions = parentmodification.Repetitions;
+                        if (repetitions > 0 || repetitions == int.MaxValue)
                         {
-                            parentmodification.Repetitions--;
+                            if (repetitions != int.MaxValue) { 
+                                parentmodification.Repetitions--;
+                            }
                             parentmodification.Active = true;
                             break;
                         }

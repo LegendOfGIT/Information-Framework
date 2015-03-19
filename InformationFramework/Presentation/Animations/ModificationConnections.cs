@@ -9,7 +9,7 @@ namespace InformationFramework.Presentation.Modifications
 {
     public static class ConnectionFactory
     {
-        public static void Connect(Graphics graphics, PresentationObject PresentationObject, PointF OffsetPosition)
+        public static void Connect(Graphics graphics, PresentationObject PresentationObject, PointF OffsetPosition, object Graphicslocker)
         {
             if (PresentationObject != null && PresentationObject.Connections != null && PresentationObject.Connections.Any())
             {
@@ -46,7 +46,7 @@ namespace InformationFramework.Presentation.Modifications
                             (ConnectedObject.Position.Value.Y + OffsetPosition.Y) + (pointy / connectedshape.Count)
                         );
 
-                        graphics.DrawLine(new Pen(Brushes.Gray, 1), p1, p2);
+                        lock (Graphicslocker) { graphics.DrawLine(new Pen(Brushes.Gray, 1), p1, p2); }
                     }
                 }
             }

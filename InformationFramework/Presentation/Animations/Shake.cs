@@ -23,20 +23,20 @@ namespace InformationFramework.Animations
             var delta = 0.85f;
 
             var modifications = new Modification[]{ 
-                new ModificationAngle{ Active = true, TargetVector = 270, ChangingVector = 270 },
-                new ModificationVelocity{ Active = true, TargetVector = (velocity * 2) * -1, ChangingVector = delta }
+                new ModificationAngle{ Active = true, TargetVector = 270, Vector = 270 },
+                new ModificationVelocity{ Active = true, TargetVector = (velocity * 2) * -1, Vector = delta }
             };
             var modification = modifications.FirstOrDefault(item => item is ModificationVelocity);
             while (velocity > 0) {
                 if (modification != null) {
                     modification.Modifications = new Modification[]{
-                        new ModificationAngle{ TargetVector = 90, ChangingVector = 90 },
-                        new ModificationVelocity{ TargetVector = velocity * 1, ChangingVector = delta },
+                        new ModificationAngle{ TargetVector = 90, Vector = 90 },
+                        new ModificationVelocity{ TargetVector = velocity * 1, Vector = delta },
                     };
                     modification = modification.Modifications.FirstOrDefault(item => item is ModificationVelocity);
                     modification.Modifications = new Modification[]{
-                        new ModificationAngle{ TargetVector = 270, ChangingVector = 270 },
-                        new ModificationVelocity{ TargetVector = velocity * -1, ChangingVector = delta },
+                        new ModificationAngle{ TargetVector = 270, Vector = 270 },
+                        new ModificationVelocity{ TargetVector = velocity * -1, Vector = delta },
                     };
 
                     velocity -= delta;
@@ -46,8 +46,8 @@ namespace InformationFramework.Animations
             }
 
             modification.Modifications = new Modification[]{
-                new ModificationAngle{ TargetVector = 90, ChangingVector = 90 },
-                new ModificationVelocity{ TargetVector = 0, ChangingVector = delta },
+                new ModificationAngle{ TargetVector = 90, Vector = 90 },
+                new ModificationVelocity{ TargetVector = 0, Vector = delta },
             };
             //modification = modification.Modifications.FirstOrDefault(item => item is ModificationVelocity);
             //modification.Modifications = new Modification[]{

@@ -9,7 +9,7 @@ namespace InformationFramework.Presentation.Modifications
     public class ModificationVelocity : Modification
     {
         public float TargetVector { get; set; }
-        public float ChangingVector { get; set; }
+        public float Vector { get; set; }
     }
 
     public static class VelocityFactory
@@ -30,7 +30,7 @@ namespace InformationFramework.Presentation.Modifications
                 {
                     foreach (ModificationVelocity movement in movements)
                     {
-                        var delta = movement.ChangingVector;
+                        var delta = movement.Vector;
                         var newvalue = response + delta;
                         //  Geschwindigkeitsänderung
                         response =

@@ -32,18 +32,20 @@ namespace InformationFramework.Provider
             if (item == null)
             {
                 var drives = DriveInfo.GetDrives();
-                if (drives != null && drives.Any())
-                {
-                    foreach (var drive in drives)
-                    {
-                        response.Add(new InformationItem
+                if (drives != null) {
+                    foreach (var drive in drives) {
+                        try
                         {
-                            Properties = new[]{
-                                new InformationProperty{ ID = InformationProperty.Type, Values = new []{ Directory } },
-                                new InformationProperty{ ID = InformationProperty.Name, Values = new []{ drive.VolumeLabel } },
-                                new InformationProperty{ ID = Directory, Values = new []{ drive.RootDirectory.FullName} }
-                            }
-                        });
+                            response.Add(new InformationItem
+                            {
+                                Properties = new[]{
+                                    new InformationProperty{ ID = InformationProperty.Type, Values = new []{ Directory } },
+                                    new InformationProperty{ ID = InformationProperty.Name, Values = new []{ drive.VolumeLabel } },
+                                    new InformationProperty{ ID = Directory, Values = new []{ drive.RootDirectory.FullName} }
+                                }
+                            });
+                        }
+                        catch (Exception) { }
                     }
                 }
             }
