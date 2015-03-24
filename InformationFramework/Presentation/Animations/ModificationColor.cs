@@ -33,7 +33,7 @@ namespace InformationFramework.Presentation.Modifications
         {
             if (PresentationObject != null) {
                 var activemodifications = PresentationObject.ActiveModifications;
-                var modifications = PresentationObject.Modifications;
+                var modifications = PresentationObject.Animations;
                 var colormodifications = default(IEnumerable<Modification>);
 
                 colormodifications = activemodifications == null ? colormodifications : activemodifications.Where(item => item is ModificationColor);

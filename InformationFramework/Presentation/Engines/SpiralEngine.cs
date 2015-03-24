@@ -64,40 +64,7 @@ namespace InformationFramework.Presentation.Engines
                     initialmodification.OnLeave += ItemsMoved_OnLeave;
                     CurrentItem = items.Last();
                 }
-                presentationobject.Modifications = new[] { initialmodification };
-
-                //var modificationangle = AngleFactory.Create(Startposition.West);
-                //var modifications = new List<Modification>();
-                //var modification = (Modification)new ModificationAngle {
-                //    Active = true,
-                //    ChangingVector = modificationangle,
-                //    TargetVector = modificationangle
-                //};
-                //for (int x = 0; x <= i; x++) {
-                //    AngleFactory.Add(ref modificationangle, 22.5f);
-
-                //    if (modification != null) {
-                //        var speedup = new ModificationVelocity{ TargetVector = x * 1.3f, ChangingVector = x * 0.90f };
-                //        var slowdown = new ModificationVelocity { TargetVector = 0f, ChangingVector = (x * 0.4f) * -1 };
-                //        modification.Modifications = new Modification[]{
-                //            new ModificationAngle{ TargetVector = modificationangle, ChangingVector = 7.8f },
-                //            speedup
-                //        };
-                //        speedup.Modifications = new[] { slowdown };
-                        
-                //        var nextmodification = slowdown;
-                //        nextmodification.Parent = modification;
-                //        modification = nextmodification;
-                //    }
-                //}
-
-                //while (modification.Parent != null) {
-                //    modification = modification.Parent;
-                //}
-
-                //presentationobject.Connections = previouspresentationobject == null ? null : new[] { previouspresentationobject };
-
-                //presentationobject.Modifications = new[]{ modification };
+                presentationobject.Animations.Add(new CustomAnimation{ Modifications = new[]{ initialmodification } });
 
                 item.PresentationObject = presentationobject;
                 previouspresentationobject = presentationobject;
@@ -125,7 +92,7 @@ namespace InformationFramework.Presentation.Engines
                 {
                     foreach (var hightlightitem in highlighteditems)
                     {
-                        hightlightitem.Modifications = new Shake().Movements;
+                        hightlightitem.Animations.Add(new Shake());
                     }
                 }
             }
@@ -185,10 +152,10 @@ namespace InformationFramework.Presentation.Engines
                 AngleFactory.Add(ref modificationangle, (22.5f * factor));
             }
 
-            presentationobject.Modifications = new Modification[]{
+            presentationobject.Animations.Add(new CustomAnimation{ Modifications = new Modification[]{
                 new ModificationAngle{ TargetVector = modificationangle, Vector = (7.8f * factor), Active = true },
                 speedup
-            };
+            }});
             speedup.Modifications = new[] { slowdown };
 
             presentationobject.Shadow = (PresentationObject)presentationobject.Clone();
@@ -304,8 +271,8 @@ namespace InformationFramework.Presentation.Engines
                                 Vector = 6f,
                                 TargetVector = 6f,
                                 Modifications = new Modification[]{
-                                        slowdown
-                                    }
+                                    slowdown
+                                }
                             };
                             slowdown.OnLeave += new EventHandler(delegate {
                                 Informationitems = (Provider.ToArray()[0] as FilesystemProvider).GrabItems(chosenitem);
@@ -313,9 +280,8 @@ namespace InformationFramework.Presentation.Engines
                             });
 
                             modifications.Add(speedup);
-                            presentationobject.Modifications = modifications;
-
-                            chosenpresentationobject.Modifications = modifications;
+                            presentationobject.Animations.Add(new CustomAnimation { Modifications = modifications });
+                            chosenpresentationobject.Animations.Add(new CustomAnimation { Modifications = modifications });
                         }
                         else
                         {
@@ -326,7 +292,7 @@ namespace InformationFramework.Presentation.Engines
                                 TargetRed = 0f
                             };
                             modifications.Add(fadeout);
-                            presentationobject.Modifications = modifications;
+                            presentationobject.Animations.Add(new CustomAnimation { Modifications = modifications });
                         }
                     }
                 }

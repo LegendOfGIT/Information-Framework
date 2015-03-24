@@ -22,7 +22,7 @@ namespace InformationFramework.Presentation.Modifications
             if (PresentationObject != null)
             {
                 var activemodifications = PresentationObject.ActiveModifications;
-                var modifications = PresentationObject.Modifications;
+                var modifications = PresentationObject.Animations;
                 var movements = default(IEnumerable<Modification>);
 
                 response = PresentationObject.Size;

@@ -39,7 +39,7 @@ namespace InformationFramework.Presentation.Engines
                 {
                     foreach (var hightlightitem in highlighteditems)
                     {
-                        hightlightitem.Modifications = new Shake().Movements;
+                        hightlightitem.Animations.Add(new Shake());
                     }
                 }
             }
@@ -76,7 +76,6 @@ namespace InformationFramework.Presentation.Engines
                     Connections = new[] { centeritem },
                     Enabled = false
                 };
-                var modifications = new List<Modification>();
                 var slowdown = new ModificationVelocity { Vector = -0.069f, TargetVector = 0f }; 
                 slowdown.OnLeave += new EventHandler(delegate { presentationobject.Enabled = true; });
 
@@ -89,9 +88,8 @@ namespace InformationFramework.Presentation.Engines
                         slowdown
                     }
                 };
-                modifications.Add(speedup);
-                modifications.AddRange(new Glimmer(presentationobject).Movements);
-                presentationobject.Modifications = modifications;
+                presentationobject.Animations.Add(new CustomAnimation { Modifications = new[]{ speedup } });
+                presentationobject.Animations.Add(new Glimmer(presentationobject));
 
                 item.PresentationObject = presentationobject;
             }
@@ -119,14 +117,13 @@ namespace InformationFramework.Presentation.Engines
                 var infopresentation = info.PresentationObject;
                 if (infopresentation != null)
                 {
-                    infopresentation.Modifications =
-                        infopresentation.ActiveModifications.Any(mod => mod is ModificationSize) ? infopresentation.Modifications :
-                        new[]{
+                    if (!infopresentation.Animations.Any(animation => animation.Modifications.Any(mod => mod is ModificationSize))) { 
+                        infopresentation.Animations.Add(new CustomAnimation{ Modifications = new[]{
                             new ModificationSize{ 
                                 Active = true, TargetVector = infopresentation.Size + 33f, Vector = 4.5f
                             }
-                        }
-                    ;
+                        }});
+                    }
                     infopresentation.Color = Color.Green.ToFloatColor();
                 }
 
@@ -159,14 +156,13 @@ namespace InformationFramework.Presentation.Engines
                 var infopresentation = info.PresentationObject;
                 if (infopresentation != null)
                 {
-                    infopresentation.Modifications =
-                        infopresentation.ActiveModifications.Any(mod => mod is ModificationSize) ? infopresentation.Modifications :
-                        new[]{
+                    if (!infopresentation.Animations.Any(animation => animation.Modifications.Any(mod => mod is ModificationSize))) {
+                        infopresentation.Animations.Add(new CustomAnimation{ Modifications = new[]{
                             new ModificationSize{ 
                                 Active = true, TargetVector = infopresentation.Size - 33f, Vector = -6f
                             }
-                        }
-                    ;
+                        }});
+                    }
 
                     if (infopresentation.Enabled) {
                         infopresentation.Color = (type == FilesystemProvider.Directory ? Color.Red : Color.Orange).ToFloatColor();
@@ -226,9 +222,9 @@ namespace InformationFramework.Presentation.Engines
                             });
 
                             modifications.Add(speedup);
-                            presentationobject.Modifications = modifications;
+                            presentationobject.Animations.Add(new CustomAnimation{ Modifications = modifications });
 
-                            chosenpresentationobject.Modifications = modifications;
+                            chosenpresentationobject.Animations.Add(new CustomAnimation{ Modifications = modifications });
                         }
                         else
                         {
@@ -239,7 +235,7 @@ namespace InformationFramework.Presentation.Engines
                                 TargetRed = 0f
                             };
                             modifications.Add(fadeout);
-                            presentationobject.Modifications = modifications;
+                            presentationobject.Animations.Add(new CustomAnimation{ Modifications = modifications });
                         }
                     }
                 }

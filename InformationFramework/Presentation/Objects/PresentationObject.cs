@@ -5,6 +5,7 @@ using System.Text;
 using System.Drawing;
 using System.Windows.Forms;
 using InformationFramework.Presentation.Modifications;
+using InformationFramework.Animations;
 
 namespace InformationFramework.Presentation.Objects
 {
@@ -22,33 +23,40 @@ namespace InformationFramework.Presentation.Objects
 
         public PresentationObject Shadow { get; set; }
 
+        public PresentationObject(){
+            this.Animations = new List<Animation>();
+            this.Enabled = true;
+        }
+
+        public List<Animation> Animations { get; set; }
         public IEnumerable<PresentationObject> Connections { get; set; }
-        public IEnumerable<Modification> Modifications { get; set; }
-        public IEnumerable<Modification> ActiveModifications { get {
-            var response = new List<Modification>();
+        public IEnumerable<Modification> ActiveModifications
+        {
+            get {
+                var response = new List<Modification>();
 
-            var movements = Modifications;
-            while (movements != null && movements.Any()) {
-                var iteration = new List<Modification>();
+                if (this.Animations != null) {
+                    foreach (var animation in this.Animations) {
+                        var modifications = animation.Modifications;
+                        while (modifications != null) {
+                            var iteration = new List<Modification>();
 
-                foreach(var movement in movements){
-                    if (movement.Active) { response.Add(movement); }
-                    if (movement.Modifications != null && movement.Modifications.Any()) {
-                        iteration.AddRange(movement.Modifications);
+                            foreach(var movement in modifications){
+                                if (movement.Active) { response.Add(movement); }
+                                if (movement.Modifications != null && movement.Modifications.Any()) {
+                                    iteration.AddRange(movement.Modifications);
+                                }
+                            }
+
+                            modifications = iteration;
+                        }
                     }
                 }
 
-                movements = iteration;
+                return response;
             }
-
-            return response;
-        }}
-        public Startposition Startingposition { get; set; }
-
-        public PresentationObject()
-        {
-            this.Enabled = true;
         }
+        public Startposition Startingposition { get; set; }
 
         public void SetupStartingposition()
         {

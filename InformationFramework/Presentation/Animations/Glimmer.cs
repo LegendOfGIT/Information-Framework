@@ -7,11 +7,10 @@ namespace InformationFramework.Animations
     using System;
     using System.Drawing;
 
-    public class Glimmer
+    public class Glimmer : Animation
     {
         private FloatColor HighlightColor = default(FloatColor);
         private Random Random = default(Random);
-        public IEnumerable<Modification> Movements;
 
         public Glimmer(PresentationObject presentation) 
         {
@@ -35,23 +34,27 @@ namespace InformationFramework.Animations
             lastmodification = new ModificationColor {
                 Active = true,
                 TargetColor = HighlightColor,
-                Vector = 2.00f,
-                Repetitions = int.MaxValue
+                Vector = 10.00f
             };
             effectmodifications.Add(lastmodification);
             for (int x = 0; x < Random.Next(20, 70); x++) {
                 var dark_light = new ModificationColor
                 {
-                    Active = true,
-                    TargetColor = x % 2 == 0 ? HighlightColor : ColorFactory.ToFloatColor(Color.Black),
-                    Vector = 2.00f,
+                    TargetColor = x % 2 == 0 ? new FloatColor { R = 30 } : ColorFactory.ToFloatColor(Color.Black),
+                    Vector = 10.00f,
                     Parent = lastmodification
                 };
                 lastmodification.Modifications = new[] { dark_light };
                 lastmodification = dark_light;
             }
-            
-            Movements = effectmodifications;
+
+            if (lastmodification != null) { 
+                lastmodification.OnLeave += new EventHandler(delegate { 
+                    GlimmerEffect(); 
+                }); 
+            }
+
+            base.Modifications = effectmodifications;
         }
     }
 }

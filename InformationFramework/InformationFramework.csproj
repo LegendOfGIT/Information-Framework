@@ -44,6 +44,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Presentation\Animations\Animation.cs" />
+    <Compile Include="Presentation\Animations\CustomAnimation.cs" />
     <Compile Include="Presentation\Animations\ModificationPosition.cs" />
     <Compile Include="Presentation\Animations\ModificationConnections.cs" />
     <Compile Include="Presentation\Animations\ModificationColor.cs" />
