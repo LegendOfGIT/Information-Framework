@@ -38,7 +38,7 @@ namespace InformationFramework.Presentation.Objects
                 if (this.Animations != null) {
                     foreach (var animation in this.Animations) {
                         var modifications = animation.Modifications;
-                        while (modifications != null) {
+                        while (modifications != null && modifications.Any()) {
                             var iteration = new List<Modification>();
 
                             foreach(var movement in modifications){

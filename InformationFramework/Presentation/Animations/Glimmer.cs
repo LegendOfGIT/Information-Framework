@@ -31,17 +31,24 @@ namespace InformationFramework.Animations
             var effectmodifications = new List<Modification>();
             var lastmodification = default(Modification);
 
-            lastmodification = new ModificationColor {
+            var fadeout = new ModificationColor {
+                TargetColor = ColorFactory.ToFloatColor(Color.Black),
+                Vector = 6.00f
+            };
+            var fadein = new ModificationColor {
                 Active = true,
                 TargetColor = HighlightColor,
-                Vector = 10.00f
+                Vector = 10.00f,
+                Modifications = new[]{ fadeout }
             };
-            effectmodifications.Add(lastmodification);
-            for (int x = 0; x < Random.Next(20, 70); x++) {
+            effectmodifications.Add(fadein); 
+            lastmodification = fadeout;
+
+            for (int x = 0; x < Random.Next(20, 60); x++) {
                 var dark_light = new ModificationColor
                 {
-                    TargetColor = x % 2 == 0 ? new FloatColor { R = 30 } : ColorFactory.ToFloatColor(Color.Black),
-                    Vector = 10.00f,
+                    TargetColor = x % 2 == 0 ? new FloatColor { R = Random.Next(10, 30) } : ColorFactory.ToFloatColor(Color.Black),
+                    Vector = 0.50f,
                     Parent = lastmodification
                 };
                 lastmodification.Modifications = new[] { dark_light };

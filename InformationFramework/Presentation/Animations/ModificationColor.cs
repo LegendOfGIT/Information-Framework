@@ -47,10 +47,10 @@ namespace InformationFramework.Presentation.Modifications
                         target = modification.TargetRed.HasValue ? modification.TargetRed.Value : modification.TargetColor.HasValue ? modification.TargetColor.Value.R : target;
                         if (target.HasValue){
                             if (objectcolor.R > target.Value) {
-                                objectcolor.R -= modification.Vector; objectcolor.R = objectcolor.R < 0 ? 0 : objectcolor.R;
+                                objectcolor.R -= modification.Vector; objectcolor.R = objectcolor.R < target.Value ? target.Value : objectcolor.R;
                             }
                             else if (objectcolor.R < target.Value) {
-                                objectcolor.R += modification.Vector; objectcolor.R = objectcolor.R > 255 ? 255 : objectcolor.R;
+                                objectcolor.R += modification.Vector; objectcolor.R = objectcolor.R > target.Value ? target.Value : objectcolor.R;
                             }
                         }
 
@@ -59,10 +59,10 @@ namespace InformationFramework.Presentation.Modifications
                         target = modification.TargetRed.HasValue ? modification.TargetRed.Value : modification.TargetColor.HasValue ? modification.TargetColor.Value.G : target;
                         if (target.HasValue){
                             if (objectcolor.G > target.Value) {
-                                objectcolor.G -= modification.Vector; objectcolor.G = objectcolor.G < 0 ? 0 : objectcolor.G;
+                                objectcolor.G -= modification.Vector; objectcolor.G = objectcolor.G < target.Value ? target.Value : objectcolor.G;
                             }
                             else if (objectcolor.G < target.Value) {
-                                objectcolor.G += modification.Vector; objectcolor.G = objectcolor.G > 255 ? 255 : objectcolor.G;
+                                objectcolor.G += modification.Vector; objectcolor.G = objectcolor.G > target.Value ? target.Value : objectcolor.G;
                             }
                         }
 
@@ -71,10 +71,10 @@ namespace InformationFramework.Presentation.Modifications
                         target = modification.TargetRed.HasValue ? modification.TargetRed.Value : modification.TargetColor.HasValue ? modification.TargetColor.Value.B : target;
                         if (target.HasValue){
                             if (objectcolor.B > target.Value) {
-                                objectcolor.B -= modification.Vector; objectcolor.B = objectcolor.B < 0 ? 0 : objectcolor.B;
+                                objectcolor.B -= modification.Vector; objectcolor.B = objectcolor.B < target.Value ? target.Value : objectcolor.B;
                             }
                             else if (objectcolor.B < target.Value) {
-                                objectcolor.B += modification.Vector; objectcolor.B = objectcolor.B > 255 ? 255 : objectcolor.B;
+                                objectcolor.B += modification.Vector; objectcolor.B = objectcolor.B > target.Value ? target.Value : objectcolor.B;
                             }
                         }
 

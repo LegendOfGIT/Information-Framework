@@ -117,7 +117,7 @@ namespace InformationFramework.Presentation.Engines
                 var infopresentation = info.PresentationObject;
                 if (infopresentation != null)
                 {
-                    if (!infopresentation.Animations.Any(animation => animation.Modifications.Any(mod => mod is ModificationSize))) { 
+                    if (!infopresentation.ActiveModifications.Any(mod => mod is ModificationSize)) { 
                         infopresentation.Animations.Add(new CustomAnimation{ Modifications = new[]{
                             new ModificationSize{ 
                                 Active = true, TargetVector = infopresentation.Size + 33f, Vector = 4.5f
@@ -156,7 +156,7 @@ namespace InformationFramework.Presentation.Engines
                 var infopresentation = info.PresentationObject;
                 if (infopresentation != null)
                 {
-                    if (!infopresentation.Animations.Any(animation => animation.Modifications.Any(mod => mod is ModificationSize))) {
+                    if (!infopresentation.ActiveModifications.Any(mod => mod is ModificationSize)) {
                         infopresentation.Animations.Add(new CustomAnimation{ Modifications = new[]{
                             new ModificationSize{ 
                                 Active = true, TargetVector = infopresentation.Size - 33f, Vector = -6f
